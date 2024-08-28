@@ -66,7 +66,7 @@ final class Handler extends DnsHandler
             $this->dns->domain = $url['host'] ?? 'google.com';
         } else $this->dns->domain = $this->input;
 
-        return $this->dns->run();
+        return $this->dns->initAll();
     }
 
     /**

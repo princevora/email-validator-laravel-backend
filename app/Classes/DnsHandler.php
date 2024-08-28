@@ -34,7 +34,15 @@ class DnsHandler
 
     protected bool $disposable = false;
 
-    public function run()
+    /**
+     * @return static
+     */
+    public function init()
+    {
+        return $this;
+    }
+
+    public function initAll()
     {
         $this->findIsDisposable();
 
@@ -51,7 +59,7 @@ class DnsHandler
         return $this->sendData();
     }
 
-    private function findIsDisposable()
+    protected function findIsDisposable()
     {
         // get file path.
         $path = Storage::path('public/list.txt');
@@ -60,9 +68,14 @@ class DnsHandler
         $domains = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
         $this->disposable = in_array($this->domain, $domains);
+
+        return $this->disposable;
     }
 
-    private function findMxHosts(): void
+    /**
+     * @return array
+     */
+    protected function findMxHosts(): ?array
     {
         // Set the mx
         $this->mx = $this->getDnsRecord(DNS_MX);
@@ -79,9 +92,14 @@ class DnsHandler
                 }
             }
         }
+
+        return $this->mx_hosts;
     }
 
-    private function findMx6()
+    /**
+     * @return array
+     */
+    protected function findMx6(): ?array
     {
         $this->mx = $this->getDnsRecord(DNS_AAAA);
 
@@ -93,9 +111,14 @@ class DnsHandler
                 if($value['ipv6']) $this->ipv6[] = $value['ipv6'];
             }
         }
+
+        return $this->ipv6;
     }
 
-    private function findMx4()
+    /**
+     * @return array
+     */
+    protected function findMx4(): ?array 
     {
         $this->mx = $this->getDnsRecord(DNS_A);
 
@@ -104,8 +127,13 @@ class DnsHandler
                 if($value['ip']) $this->ipv4[] = $value['ip']; 
             }
         }
+
+        return $this->ipv4;
     }
 
+    /**
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
     private function sendData()
     {
         return response()->json([
