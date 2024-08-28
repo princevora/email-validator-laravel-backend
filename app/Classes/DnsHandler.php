@@ -2,6 +2,9 @@
 
 namespace App\Classes;
 
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+
 class DnsHandler
 {
     /**
@@ -17,20 +20,24 @@ class DnsHandler
     /**
      * @var array
      */
-    protected array $mx_hosts;
+    protected array $mx_hosts = [];
 
     /**
      * @var array
      */
-    protected array $ipv6;
+    protected array $ipv6 = [];
     
     /**
      * @var array
      */
-    protected array $ipv4;
+    protected array $ipv4 = [];
+
+    protected bool $disposable = false;
 
     public function run()
     {
+        $this->findIsDisposable();
+
         // get mx hosts
         $this->findMxHosts();
 
@@ -39,6 +46,20 @@ class DnsHandler
 
         //get ipv4
         $this->findMx4();
+
+        // send response.
+        return $this->sendData();
+    }
+
+    private function findIsDisposable()
+    {
+        // get file path.
+        $path = Storage::path('public/list.txt');
+
+        // get domains as array
+        $domains = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+        $this->disposable = in_array($this->domain, $domains);
     }
 
     private function findMxHosts(): void
@@ -46,10 +67,10 @@ class DnsHandler
         // Set the mx
         $this->mx = $this->getDnsRecord(DNS_MX);
         
-        if (!empty($this->mx_hosts)) {
+        if (!empty($this->mx)) {
             // use loop to find hosts.
 
-            foreach ($this->mx_hosts as $value) {
+            foreach ($this->mx as $value) {
 
                 // find the host
                 if($value['target']) {
@@ -83,6 +104,20 @@ class DnsHandler
                 if($value['ip']) $this->ipv4[] = $value['ip']; 
             }
         }
+    }
+
+    private function sendData()
+    {
+        return response()->json([
+            'disposable'  => $this->disposable,
+            'domain'      => $this->domain,
+            'mx_hosts'    => array_keys($this->mx_hosts),
+            'mx_ip'       => [
+                'ipv4'    => $this->ipv4,
+                'ipv6'    => $this->ipv6,
+            ],
+            'mx_priority' => $this->mx_hosts,
+        ]);
     }
 
     /**
