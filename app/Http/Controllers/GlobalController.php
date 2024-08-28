@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\Handler;
 use Illuminate\Http\Request;
 
 class GlobalController extends Controller
@@ -11,6 +12,6 @@ class GlobalController extends Controller
      */
     public function __invoke(Request $request)
     {
-        dd('HERE');
+        return (new Handler($request))->run();
     }
 }
