@@ -17,12 +17,15 @@ final class Handler extends DnsHandler
      */
     private ?string $input;
 
+    private DnsHandler $dns;
+
     /**
      * @param \Illuminate\Http\Request $request
      */
-    public function __construct(Request $request)
+    public function __construct(Request $request, DnsHandler $dns)
     {
         $this->request = $request;
+        $this->dns = $dns;
     }
 
     public function run()
@@ -37,7 +40,33 @@ final class Handler extends DnsHandler
             ], 409);
         }
 
-        if($this->isValidDomain() || $this->isValidEmail() || $this->isValidUrl())
+        if(!$this->isValidDomain() && !$this->isValidEmail() && !$this->isValidUrl()) {
+            return response()->json([
+                'message' => 'The provided input is not valid Email, domain or url'
+            ], 409);
+        }
+
+        return $this->extract();
+    }
+
+    private function extract()
+    {
+        // Validate if the input is email
+        if($this->isValidEmail()) {
+            // Get the domain from the email
+            list(, $domain) = explode('@', $this->input);
+
+            // Set the dns' s domain
+            $this->dns->domain = $domain;
+        } else if ($this->isValidUrl()) {
+            // Parse the url
+            $url = @parse_url($this->input);
+
+            // get the host
+            $this->dns->domain = $url['host'] ?? 'google.com';
+        } else $this->dns->domain = $this->input;
+
+        return $this->dns->run();
     }
 
     /**

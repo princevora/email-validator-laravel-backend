@@ -10,10 +10,15 @@ class DnsHandler
     protected string $domain;
 
     /**
-     * @param string $domain
+     * @var array
      */
-    public function __construct(string $domain)
+    protected array $mx_host;
+    public function run()
     {
-        $this->domain = $domain;
+        // Set the mx
+        $this->mx = dns_get_record($this->domain, DNS_MX);
+        if ($this->mx) {
+            dd($this->mx);
+        }
     }
 }
