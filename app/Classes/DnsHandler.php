@@ -78,7 +78,7 @@ class DnsHandler
     protected function findMxHosts(): ?array
     {
         // Set the mx
-        $this->mx = $this->getDnsRecord(DNS_MX);
+        $this->mx = @$this->getDnsRecord(DNS_MX);
         
         if (!empty($this->mx)) {
             // use loop to find hosts.
@@ -101,7 +101,7 @@ class DnsHandler
      */
     protected function findMx6(): ?array
     {
-        $this->mx = $this->getDnsRecord(DNS_AAAA);
+        $this->mx = @$this->getDnsRecord(DNS_AAAA);
 
         if(!empty($this->mx)){
             // run foreach loop to get ipv6 recors.
@@ -120,7 +120,7 @@ class DnsHandler
      */
     protected function findMx4(): ?array 
     {
-        $this->mx = $this->getDnsRecord(DNS_A);
+        $this->mx = @$this->getDnsRecord(DNS_A);
 
         if(!empty($this->mx)){
             foreach ($this->mx as $value) {
