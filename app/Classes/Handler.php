@@ -4,8 +4,9 @@ namespace App\Classes;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Log;
 
-final class Handler extends DnsHandler
+final class Handler
 {
     /**
      * @var Request
@@ -48,6 +49,8 @@ final class Handler extends DnsHandler
             ], 409);
         }
 
+        Log::info($this->input, [$this->isValidDomain()]);
+
         if(!$this->isValidDomain() && !$this->isValidEmail() && !$this->isValidUrl()) {
             return response()->json([
                 'message' => 'The provided input is not valid Email, domain or url'
@@ -63,7 +66,6 @@ final class Handler extends DnsHandler
         if($this->isValidEmail()) {
             // Get the domain from the email
             list(, $domain) = explode('@', $this->input);
-
             // Set the dns' s domain
             $this->dns->domain = $domain;
         } else if ($this->isValidUrl()) {
@@ -72,7 +74,9 @@ final class Handler extends DnsHandler
 
             // get the host
             $this->dns->domain = $url['host'] ?? 'google.com';
-        } else $this->dns->domain = $this->input;
+        } else if($this->isValidDomain()){
+            $this->dns->domain = $this->input;
+        }
 
         return $this->dns->initAll();
     }
@@ -90,7 +94,9 @@ final class Handler extends DnsHandler
      */
     private function isValidDomain(): bool
     {
-        return filter_var($this->input, FILTER_VALIDATE_DOMAIN) !== false;
+        $result = filter_var($this->input, FILTER_VALIDATE_DOMAIN);
+        
+        return $result !== $this->input && $result !== false;
     }
 
     /**
@@ -98,6 +104,6 @@ final class Handler extends DnsHandler
      */
     private function isValidEmail(): bool
     {
-        return filter_var($this->input, FILTER_VALIDATE_EMAIL) !== false;
+        return filter_var($this->input, FILTER_VALIDATE_EMAIL);
     }
 }

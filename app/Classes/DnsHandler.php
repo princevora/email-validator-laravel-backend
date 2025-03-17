@@ -11,7 +11,7 @@ class DnsHandler
     /**
      * @var string
      */
-    protected string $domain;
+    public string $domain;
 
     /**
      * @var array
@@ -156,6 +156,8 @@ class DnsHandler
     private function sendData()
     {
         return response()->json([
+            'message'     => 'Data retrivded',
+            'status'      => 200,
             'disposable'  => $this->disposable,
             'domain'      => $this->domain,
             'mx_hosts'    => array_keys($this->mx_hosts),
