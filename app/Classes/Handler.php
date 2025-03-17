@@ -49,8 +49,6 @@ final class Handler
             ], 409);
         }
 
-        Log::info($this->input, [$this->isValidDomain()]);
-
         if(!$this->isValidDomain() && !$this->isValidEmail() && !$this->isValidUrl()) {
             return response()->json([
                 'message' => 'The provided input is not valid Email, domain or url'
@@ -94,9 +92,7 @@ final class Handler
      */
     private function isValidDomain(): bool
     {
-        $result = filter_var($this->input, FILTER_VALIDATE_DOMAIN);
-        
-        return $result !== $this->input && $result !== false;
+        return (preg_match("/^(?!:\/\/)([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,63}$/", $this->input));
     }
 
     /**
