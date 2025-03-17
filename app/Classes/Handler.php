@@ -17,6 +17,9 @@ final class Handler extends DnsHandler
      */
     private ?string $input;
 
+    /**
+     * @var DnsHandler
+     */
     private DnsHandler $dns;
 
     /**
@@ -28,6 +31,11 @@ final class Handler extends DnsHandler
         $this->dns = $dns;
     }
 
+    /**
+     * initialize the dns parsing
+     * 
+     * @return JsonResponse|mixed
+     */
     public function run()
     {
         // Assign the value.

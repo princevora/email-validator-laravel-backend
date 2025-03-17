@@ -2,6 +2,7 @@
 
 namespace App\Classes;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
@@ -32,6 +33,9 @@ class DnsHandler
      */
     protected array $ipv4 = [];
 
+    /**
+     * @var bool
+     */
     protected bool $disposable = false;
 
     /**
@@ -42,7 +46,12 @@ class DnsHandler
         return $this;
     }
 
-    public function initAll()
+    /**
+     * initAll() Method used to initialize the workers to find all the data
+     * 
+     * @return mixed|\Illuminate\Http\JsonResponse
+     */
+    public function initAll(): JsonResponse
     {
         $this->findIsDisposable();
 
@@ -59,6 +68,9 @@ class DnsHandler
         return $this->sendData();
     }
 
+    /**
+     * @return bool
+     */
     protected function findIsDisposable()
     {
         // get file path.
@@ -73,6 +85,9 @@ class DnsHandler
     }
 
     /**
+     * findMxHosts() method returns the all records as array
+     * as they can be one or more
+     * 
      * @return array
      */
     protected function findMxHosts(): ?array
@@ -97,7 +112,9 @@ class DnsHandler
     }
 
     /**
-     * @return array
+     * findMx6 is used to find ipv6s it can be a array or null
+     * 
+     * @return null|array
      */
     protected function findMx6(): ?array
     {
@@ -116,7 +133,9 @@ class DnsHandler
     }
 
     /**
-     * @return array
+     * returns a array of ipv4 or null
+     * 
+     * @return null|array
      */
     protected function findMx4(): ?array 
     {
